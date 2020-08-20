@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>transcript-worker</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/fontawesome.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/solid.min.css" />
+    <script type="text/javascript" src="script.js" defer></script>
+
+    <style>
+        body {
+            margin-left: 20px;
+        }
+
+        .voices{display: none}
+
+        .options {
+            display: table;
+            border-spacing: 10px;
+        }
+
+        .options > div {
+            display: table-row;
+        }
+
+        .options > div > div {
+            display: table-cell;
+        }
+
+        .container {
+            display: flex;
+            margin-left: 10px;
+        }
+
+        .left {
+            margin-right: 30px;
+        }
+
+    </style>
+</head>
+
+<body>
+    <h1>speaker-worker</h1>
+    <div class="container">
+        <div class="left">
+            <h2>Speak</h2>
+            <form id="speaker-form">
+                <div class='options'>
+                    <div>
+                        <div>Text</div>
+                        <div><input type="text" id="text"></div>
+                    </div>
+                    <div>
+                        <div>Language</div>
+                        <div>
+                            <select name="language" id="lang-choose">
+                                <% Object.keys(languages).sort().forEach((language) => { %>
+                                    <option><%- language %></option>
+                                <% }) %>
+                            </select>
+                        </div>
+                    </div>
+                    <div>
+                        <div>
+                            <div>Voice</div>
+                        </div>
+                        <div>
+                            <% for (const language in languages) { %>
+                                <div class='voices' id="<%- language %>-voices">
+                                    <select id="<%- language %>-voices-select" name='voice'>
+                                        <% languages[language].forEach((voice) => { %>
+                                            <option><%- voice %></option>
+                                        <% }) %>
+                                    </select>
+                                </div>
+                            <% } %>
+                        </div>
+                    </div>
+                </div>
+                <input type="submit" value="Submit" />
+            </form>
+        </div>
+        <div class="right">
+            <h2>Transcript</h2>
+            <div id='history'></div>
+        </div>
+    </div>
+</body>
+</html>
