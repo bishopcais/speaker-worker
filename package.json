@@ -13,7 +13,7 @@
   "private": true,
   "dependencies": {
     "@cisl/express": "^1.0.3",
-    "@cisl/io": "^1.0.0-dev.21",
+    "@cisl/io": "^1.0.0-dev.22",
     "@cisl/logger": "^1.2.0",
     "@types/dotenv": "^6.1.1",
     "@types/lodash.merge": "^4.6.6",
