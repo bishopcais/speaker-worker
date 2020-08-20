@@ -4,7 +4,7 @@ import fs from 'fs';
 import path from 'path';
 import querystring from 'querystring';
 
-import io from '@cisl/io';
+import cislio from '@cisl/io';
 import logger from '@cisl/logger';
 import express from '@cisl/express';
 
@@ -43,20 +43,21 @@ interface SpeakerWorkerConfig {
 }
 
 const app = express();
+const io = cislio();
 
 let ffplayProc: ChildProcess;
 
-const speaker_id = io.config.id || 'speaker-worker';
-const config: SpeakerWorkerConfig = merge(
-  {
-    language: "en-US",
-    voices: {
-      "en-US": "LisaVoice"
-    },
-    volume: 1
+const speaker_id = io.config.get('id') || 'speaker-worker';
+let config: SpeakerWorkerConfig = {
+  language: "en-US",
+  voices: {
+    "en-US": "LisaVoice"
   },
-  io.config.speaker
-);
+  volume: 1
+};
+if (io.config.has('speaker')) {
+  config = merge(config, io.config.get('speaker'));
+}
 
 dotenv.config({path: path.join(__dirname, '..', 'baidu-credentials.env')});
 
@@ -291,7 +292,9 @@ function playText(params: SpeechParams, reply: (message: object) => void): void 
   }
 
   if (!reply) {
-    reply = (): void => {};
+    reply = (): void => {
+      return;
+    };
   }
 
   synthesizeSpeech(instantiatedParams, (err, filePath) => {
