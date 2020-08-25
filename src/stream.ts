@@ -12,10 +12,7 @@ import { cachePath } from './cache';
 const tts = new TextToSpeechV1({});
 
 const params = JSON.parse(process.argv[2]);
-const cacheKey = `${params.language}|${params.voice}|${params.text}`;
-const cacheKeyPath = crypto.createHash('sha1').update(cacheKey).digest('hex');
-const fullCachePath = path.join(cachePath, cacheKeyPath);
-
+const fullCachePath = path.join(cachePath, params.cachePath);
 
 const wavReader = new wav.Reader();
 const volume = new Volume();
@@ -44,7 +41,7 @@ else {
   const timings: [string, number, number][] = [];
   voiceStream = tts.synthesizeUsingWebSocket(wsParams);
   voiceStream.on('end', () => {
-    fs.writeFileSync(`${fullCachePath}_timings`, JSON.stringify(timings));
+    fs.writeFileSync(`${fullCachePath}_timings.json`, JSON.stringify(timings));
   });
   voiceStream.pipe(fs.createWriteStream(fullCachePath));
   voiceStream.on('words', (_, json) => {
