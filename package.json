@@ -1,10 +1,10 @@
 {
   "name": "speaker-worker",
   "version": "3.0.0",
-  "main": "dist/speaker.js",
+  "main": "dist/index.js",
   "scripts": {
     "prestart": "npm run build",
-    "start": "node dist/speaker.js",
+    "start": "node dist/index.js",
     "build": "tsc",
     "watch": "tsc -w",
     "lint": "eslint src/*"
@@ -19,10 +19,12 @@
     "@types/lodash.merge": "^4.6.6",
     "@types/node": "^12.7.12",
     "@types/node-fetch": "^2.5.2",
-    "dotenv": "^8.1.0",
+    "@types/wav": "^1.0.0",
     "ibm-watson": "^5.0.0",
     "lodash.merge": "^4.6.2",
-    "node-fetch": "^2.6.0"
+    "pcm-volume": "^1.0.0",
+    "speaker": "^0.5.2",
+    "wav": "^1.0.2"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^2.4.0",

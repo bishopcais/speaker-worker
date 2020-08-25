@@ -50,16 +50,6 @@ To use Watson, you will need to get a `ibm-credentials.env` file for the
 See [node-sdk#getting-credentials](https://github.com/watson-developer-cloud/node-sdk#getting-credentials) for details on
 how to get the file and additional details about it.
 
-### Baidu Credentials
-
-To use Baidu, you need to register an application and get a `client_id` and `client_secret` values. Then, you will need
-to create a `baidu-credentials.env` file with the following information:
-
-```
-BAIDU_CLIENT_ID=client_id
-BAIDU_CLIENT_SECRET=client_secret
-```
-
 You may also embed those values as environment variables when running the speaker service.
 
 ## Configuration
@@ -81,7 +71,7 @@ specific settings shown below:
 }
 ```
 
-If any of these values are ommited from the `cog.json` file, then the default shown above will be
+If any of these values are omitted from the `cog.json` file, then the default shown above will be
 used instead. Each of these can be changed during operation through the RabbitMQ interface. Please see the
 web UI for the list of available languages and voices for each language. Volume should be a decimal number
 between 0 and 1.
@@ -104,8 +94,8 @@ The service listens on the following topics on the exchange:
 And the following RPC queue:
 
 * rpc-speaker-speakText
-* rpc-speaker-getSynthesizedSpeech
-* rpc-speaker-playBuffer
+* (TODO) rpc-speaker-getSynthesizedSpeech
+* (TODO) rpc-speaker-playBuffer
 * rpc-speaker-stop
 
 The service outputs on the following topics on configured exchange:
@@ -113,7 +103,6 @@ The service outputs on the following topics on configured exchange:
 * speaker.speak.content
 * speaker.speak.begin
 * speaker.speak.end
-
 
 
 ### rpc-speaker-speakText
@@ -129,7 +118,7 @@ Accepts the following payload:
 }
 ```
 
-A reply will be returned on the RPC queue after ffmpeg has finished playing, which will be a JSON object with
+A reply will be returned on the RPC queue after the audio has finished playing, which will be a JSON object with
 the following structure if it succeeded:
 
 ```javascript
@@ -234,7 +223,7 @@ Will output the following payload:
 
 ### speaker.speak.begin
 
-This is sent after ffmpeg instance has been created, and right before it plays the voice, similar to `speaker.speak.content`.
+This is sent after the stream instance has been created, and right before it plays the voice, similar to `speaker.speak.content`.
 
 Will output the following payload:
 
@@ -249,11 +238,12 @@ Will output the following payload:
   "pan": []
 }
 ```
+
 (Note, timings is only available for synthesized speech going through Watson TTS)
 
 ### speaker.speak.end
 
-This is sent after ffmpeg has finished outputting the audio file.
+This is sent after stream has finished outputting the audio file.
 
 Will output the following payload:
 
@@ -268,4 +258,5 @@ Will output the following payload:
   "pan": []
 }
 ```
+
 (Note, timings is only available for synthesized speech going through Watson TTS)

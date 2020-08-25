@@ -7,13 +7,18 @@
     "sourceMap": false,
     "outDir": "./dist",
     "strict": true,
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "skipLibCheck": true, // remove once https://github.com/TooTallNate/node-speaker/pull/148 is merged
   },
   "include": [
-    "src/**/*"
+    "src/**/*.ts",
+    "pcm-volume.d.ts"
   ],
   "exclude": [
     "node_modules",
     "test"
-  ]
+  ],
+  "paths": {
+    "speaker": ["src/speaker.d.ts"]
+  }
 }
