@@ -16,8 +16,6 @@ import path from 'path';
 import TextToSpeechV1 from 'ibm-watson/text-to-speech/v1';
 import { cachePath } from './cache';
 
-const tts = new TextToSpeechV1({});
-
 const params = JSON.parse(process.argv[2]);
 const fullCachePath = path.join(cachePath, params.cachePath);
 
@@ -37,6 +35,7 @@ if (fs.existsSync(fullCachePath)) {
   voiceStream = fs.createReadStream(fullCachePath);
 }
 else {
+  const tts = new TextToSpeechV1({});
   const wsParams = {
     accept: 'audio/wav',
     text: params.text,
