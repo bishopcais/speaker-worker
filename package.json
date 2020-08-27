@@ -7,7 +7,10 @@
     "start": "node dist/index.js",
     "build": "tsc",
     "watch": "tsc -w",
-    "lint": "eslint src/*"
+    "lint": "eslint src/*",
+    "clear:cache": "rimraf cache/*",
+    "clear:build": "rimraf dist",
+    "clear": "npm run clear:cache && npm run clear:build"
   },
   "author": "Matthew Peveler <pevelm@rpi.edu>",
   "private": true,
@@ -23,6 +26,7 @@
     "ibm-watson": "^5.0.0",
     "lodash.merge": "^4.6.2",
     "pcm-volume": "^1.0.0",
+    "rimraf": "^3.0.2",
     "speaker": "^0.5.2",
     "wav": "^1.0.2"
   },
