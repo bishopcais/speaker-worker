@@ -67,7 +67,7 @@ else {
 
   const writeStream = fs.createWriteStream(fullCachePath);
   promises.push(new Promise((resolve) => {
-    console.log('finished writing cache file');
+    console.log(`finished writing cache file: ${fullCachePath}`);
     writeStream.on('close', resolve);
   }));
   voiceStream.pipe(fs.createWriteStream(fullCachePath));
