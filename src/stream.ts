@@ -1,10 +1,17 @@
+/*
+ * This file is run within a separate process from the main execution, as the node streams used below end
+ * up being blocking on the event loop. This means that that within the single threaded nature of Node,
+ * there was no way to kill the streams mid-stream, and that one would have to wait until the streams have
+ * completely finished before attempting to kill them. Instead, we spawn this as a separate process, and then
+ * just kill the process if we want the system to stop talking, bypassing the single thread event loop.
+ */
+
 import wav from 'wav';
 import Speaker from 'speaker';
 // eslint-disable-next-line
 // @ts-ignore
 import Volume from 'pcm-volume';
 import fs from 'fs';
-import crypto from 'crypto';
 import path from 'path';
 import TextToSpeechV1 from 'ibm-watson/text-to-speech/v1';
 import { cachePath } from './cache';
