@@ -59,7 +59,7 @@ else {
   voiceStream = tts.synthesizeUsingWebSocket(wsParams);
   promises.push(new Promise((resolve) => {
     voiceStream.on('end', () => {
-      console.log('writing timings file');
+      console.log(`writing timings file: ${fullCachePath}_timings.json}`);
       fs.writeFileSync(`${fullCachePath}_timings.json`, JSON.stringify(timings));
       resolve();
     });
@@ -67,8 +67,11 @@ else {
 
   const writeStream = fs.createWriteStream(fullCachePath);
   promises.push(new Promise((resolve) => {
-    console.log(`finished writing cache file: ${fullCachePath}`);
-    writeStream.on('close', resolve);
+
+    writeStream.on('close', () => {
+      console.log(`finished writing cache file: ${fullCachePath}`);
+      resolve();
+    });
   }));
   voiceStream.pipe(fs.createWriteStream(fullCachePath));
   voiceStream.on('words', (_, json) => {
