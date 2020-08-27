@@ -1,8 +1,7 @@
 # Speaker-Worker
 
 The `speaker-worker` allows for receiving text, and then uses cloud services to synthesize
-that to speech, and outputs it using `ffplay` on the default speakers for the system. Works
-on Windows, macOS, and Linux.
+that to speech, and outputs it to speakers of the system. Works on Windows, macOS, and Linux.
 
 Under the hood, the system utilizes a cache where any synthesized speech is saved to a file, and
 that file used on subsequent calls for that combination of text, language, and voice. The cache,
@@ -10,21 +9,19 @@ and the generated files, are stored in the `cache/` directory that is created th
 run the application.
 
 ## Installation
-You will need to install [ffmpeg](https://www.ffmpeg.org/) for the transcript-worker to function.
-This handles getting input across many different channels as well as deal with setting sound thresholds
-and such. To get it, for macOS you should use [homebrew](https://brew.sh) and for Linux use your distro's
-package manager. Alternatively for those platforms, and for Windows generally, you can directly
-[download](https://www.ffmpeg.org/download.html) the necessary binaries and put them somewhere on your path.
 
-Then, you need to get the [STT Credentials](#STT_Credentials) and then do:
-```
+After cloning the repository, you need to run the following to set-up the module:
+
+```bash
 npm install
 cp cog-sample.json cog.json
 ```
 
+After that, edit `cog.json` to have the credentials you need for RabbitMQ, etc.
+
 ## Usage
 
-```
+```bash
 npm start
 ```
 
@@ -35,24 +32,13 @@ using `npm run build` and then you can directly run `node dist/speaker.js`.
 
 ## Credentials
 
-The speaker-worker relies on two different services:
+The speaker-worker relies on the [Watson Text-to-Speech service](https://cloud.ibm.com/apidocs/text-to-speech) to
+handle the synthesis of text to speech. Under the hood, we use the [ibm-watson](https://www.npmjs.com/package/ibm-watson)
+library to handle connecting to it. Currently, this module only supports using the `ibm-credentials.env` file for
+authentication. See the [ibm-watson#credentials-file](https://www.npmjs.com/package/ibm-watson#credentials-file-easier)
+section on how to get this file for the Text-to-Speech service.
 
-* Watson Text-To-Speech
-* Baidu
-
-Where Watson is used for most of the languages supported and Baidu is used for Chinese support. Having the Baidu
-credentials is not required, but Watson is.
-
-### Watson Credentials
-
-To use Watson, you will need to get a `ibm-credentials.env` file for the
-[Watson Text-to-Speech service](https://www.ibm.com/watson/services/text-to-speech/).
-See [node-sdk#getting-credentials](https://github.com/watson-developer-cloud/node-sdk#getting-credentials) for details on
-how to get the file and additional details about it.
-
-You may also embed those values as environment variables when running the speaker service.
-
-## Configuration
+## Cog Configuration
 
 To run this, you need to have a `cog.json` file in your application's directory (see `cog-sample.json` for
 a starting point). You will minimally want to define a `port`, but can also specify a number of application
@@ -76,14 +62,13 @@ used instead. Each of these can be changed during operation through the RabbitMQ
 web UI for the list of available languages and voices for each language. Volume should be a decimal number
 between 0 and 1.
 
-
 ## RabbitMQ
 
 In addition to the Web UI, the service is functional over RabbitMQ. To use RabbitMQ, make sure in the `cog.json`
-file you minimally have `rabbit: true` or configure it as necessary.
-(See (@cisl/io#RabbitMQ)[https://internal.cisl.rpi.edu/code/libraries/node/cisl/io#rabbitmq] for more details).
-Note, all messages should be sent with the `content-type: application/json` header, or else this library will
-fail to understand the message. Please consult your RabbitMQ library for details on how to set that.
+file you minimally have `rabbit: true` or configure it as necessary. See
+[@cisl/io#RabbitMQ](https://github.com/cislrpi/io#rabbitmq) for more details. Note, all messages should be sent
+with the `content-type: application/json` header, or else this library will fail to understand the message.
+Please consult your RabbitMQ library for details on how to set that.
 
 The service listens on the following topics on the exchange:
 
@@ -103,7 +88,6 @@ The service outputs on the following topics on configured exchange:
 * speaker.speak.content
 * speaker.speak.begin
 * speaker.speak.end
-
 
 ### rpc-speaker-speakText
 
@@ -127,7 +111,6 @@ the following structure if it succeeded:
   "data": {
     "language": "en-US",
     "volume": 1,
-    "pan": [],
     "timestamp": "2019-10-24T16:29:08.328Z",
     "text": "Hello World",
     "voice": "AllisonV3Voice",
@@ -235,7 +218,6 @@ Will output the following payload:
   "timestamp": "2019-10-04T19:25:10.102Z"
   "timings": [["Hello", 0, 0.338], ["World", 0.338, 0.77]],
   "volume": 1,
-  "pan": []
 }
 ```
 
@@ -255,7 +237,6 @@ Will output the following payload:
   "timestamp": "2019-10-04T19:25:10.102Z",
   "timings": [["Hello", 0, 0.338], ["World", 0.338, 0.77]],
   "volume": 1,
-  "pan": []
 }
 ```
 
