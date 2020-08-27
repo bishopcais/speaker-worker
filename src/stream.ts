@@ -15,6 +15,7 @@ import fs from 'fs';
 import path from 'path';
 import TextToSpeechV1 from 'ibm-watson/text-to-speech/v1';
 import { cachePath } from './cache';
+import SynthesizeStream from 'ibm-watson/lib/synthesize-stream';
 
 const params = JSON.parse(process.argv[2]);
 const fullCachePath = path.join(cachePath, params.cachePath);
@@ -23,16 +24,25 @@ const wavReader = new wav.Reader();
 const volume = new Volume();
 volume.setVolume(params.volume);
 
-wavReader.on('format', (format) => {
-  const speaker = new Speaker(format);
+const promises = [];
 
-  console.timeEnd(`${params.cachePath}_inner`);
-  wavReader.pipe(volume);
-  volume.pipe(speaker);
-});
+let speaker: Speaker;
+
+promises.push(new Promise((resolve) => {
+  wavReader.on('format', (format) => {
+    speaker = new Speaker(format);
+
+    console.timeEnd(`${params.cachePath}_inner`);
+    wavReader.pipe(volume);
+    volume.pipe(speaker);
+
+    speaker.on('close', resolve);
+  });
+}));
+
 
 console.time(`${params.cachePath}_inner`);
-let voiceStream;
+let voiceStream: fs.ReadStream | SynthesizeStream;
 if (fs.existsSync(fullCachePath)) {
   voiceStream = fs.createReadStream(fullCachePath);
 }
@@ -47,9 +57,19 @@ else {
   };
   const timings: [string, number, number][] = [];
   voiceStream = tts.synthesizeUsingWebSocket(wsParams);
-  voiceStream.on('end', () => {
-    fs.writeFileSync(`${fullCachePath}_timings.json`, JSON.stringify(timings));
-  });
+  promises.push(new Promise((resolve) => {
+    voiceStream.on('end', () => {
+      console.log('writing timings file');
+      fs.writeFileSync(`${fullCachePath}_timings.json`, JSON.stringify(timings));
+      resolve();
+    });
+  }));
+
+  const writeStream = fs.createWriteStream(fullCachePath);
+  promises.push(new Promise((resolve) => {
+    console.log('finished writing cache file');
+    writeStream.on('close', resolve);
+  }));
   voiceStream.pipe(fs.createWriteStream(fullCachePath));
   voiceStream.on('words', (_, json) => {
     timings.push(...json.words);
@@ -57,3 +77,10 @@ else {
 }
 
 voiceStream.pipe(wavReader);
+
+Promise.all(promises).then(() => {
+  if (speaker) {
+    speaker.close(true);
+    speaker.end();
+  }
+});
