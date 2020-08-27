@@ -26,10 +26,12 @@ volume.setVolume(params.volume);
 wavReader.on('format', (format) => {
   const speaker = new Speaker(format);
 
+  console.timeEnd(`${params.cachePath}_inner`);
   wavReader.pipe(volume);
   volume.pipe(speaker);
 });
 
+console.time(`${params.cachePath}_inner`);
 let voiceStream;
 if (fs.existsSync(fullCachePath)) {
   voiceStream = fs.createReadStream(fullCachePath);
@@ -43,7 +45,6 @@ else {
     xWatsonLearningOptOut: true,
     timings: ['words']
   };
-  const cacheWriteStream = fs.createWriteStream(path.join(fullCachePath));
   const timings: [string, number, number][] = [];
   voiceStream = tts.synthesizeUsingWebSocket(wsParams);
   voiceStream.on('end', () => {
@@ -53,7 +54,6 @@ else {
   voiceStream.on('words', (_, json) => {
     timings.push(...json.words);
   });
-  voiceStream.pipe(cacheWriteStream);
 }
 
 voiceStream.pipe(wavReader);

@@ -166,12 +166,12 @@ function synthesizeSpeech(params: SpeechParams, reply: (message: {status: string
   const fullCachePath = join(cachePath, instantiatedParams.cachePath);
   const cacheExists = fs.existsSync(fullCachePath);
 
-  console.time(instantiatedParams.cachePath);
+  console.time(`${instantiatedParams.cachePath}_cmd`);
 
   streamProc = spawn('node', [path.resolve(__dirname, '..', 'dist', 'stream.js'), JSON.stringify(instantiatedParams)], {stdio: 'inherit'});
   streamProc.unref();
   streamProc.on('exit', (exitCode) => {
-    console.timeEnd(instantiatedParams.cachePath);
+    console.timeEnd(`${instantiatedParams.cachePath}_cmd`);
     if (io.rabbit) {
       io.rabbit.publishTopic('speaker.speak.end', instantiatedParams);
     }
