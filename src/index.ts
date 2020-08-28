@@ -172,6 +172,7 @@ function synthesizeSpeech(params: SpeechParams, reply: (message: {status: string
   streamProc.unref();
   streamProc.on('exit', (exitCode) => {
     console.timeEnd(`${instantiatedParams.cachePath}_cmd`);
+    instantiatedParams.timings = JSON.parse(fs.readFileSync(`${fullCachePath}_timings.json`, {encoding: 'utf-8'}));
     if (io.rabbit) {
       io.rabbit.publishTopic('speaker.speak.end', instantiatedParams);
     }
