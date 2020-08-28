@@ -22,6 +22,7 @@
     "@types/lodash.merge": "^4.6.6",
     "@types/node": "^12.7.12",
     "@types/node-fetch": "^2.5.2",
+    "@types/pcm-volume": "^1.0.0",
     "@types/wav": "^1.0.0",
     "ibm-watson": "^5.0.0",
     "lodash.merge": "^4.6.2",

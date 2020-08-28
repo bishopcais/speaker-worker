@@ -8,8 +8,6 @@
 
 import wav from 'wav';
 import Speaker from 'speaker';
-// eslint-disable-next-line
-// @ts-ignore
 import Volume from 'pcm-volume';
 import fs from 'fs';
 import path from 'path';
@@ -67,7 +65,6 @@ else {
 
   const writeStream = fs.createWriteStream(fullCachePath);
   promises.push(new Promise((resolve) => {
-
     writeStream.on('close', () => {
       console.log(`finished writing cache file: ${fullCachePath}`);
       resolve();
