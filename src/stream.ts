@@ -15,6 +15,8 @@ import TextToSpeechV1 from 'ibm-watson/text-to-speech/v1';
 import { cachePath } from './cache';
 import SynthesizeStream from 'ibm-watson/lib/synthesize-stream';
 
+process.exitCode = 0;
+
 const params = JSON.parse(process.argv[2]);
 const fullCachePath = path.join(cachePath, params.cachePath);
 

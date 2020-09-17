@@ -171,6 +171,7 @@ function synthesizeSpeech(params: SpeechParams, reply: (message: {status: string
   streamProc = spawn('node', [path.resolve(__dirname, '..', 'dist', 'stream.js'), JSON.stringify(instantiatedParams)], {stdio: 'inherit'});
   streamProc.unref();
   streamProc.on('exit', (exitCode) => {
+    console.log(`exitCode: ${exitCode}`);
     console.timeEnd(`${instantiatedParams.cachePath}_cmd`);
     instantiatedParams.timings = JSON.parse(fs.readFileSync(`${fullCachePath}_timings.json`, {encoding: 'utf-8'}));
     if (io.rabbit) {
