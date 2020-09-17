@@ -173,10 +173,20 @@ function synthesizeSpeech(params: SpeechParams, reply: (message: {status: string
   streamProc.on('exit', (exitCode) => {
     console.log(`exitCode: ${exitCode}`);
     console.timeEnd(`${instantiatedParams.cachePath}_cmd`);
-    instantiatedParams.timings = JSON.parse(fs.readFileSync(`${fullCachePath}_timings.json`, {encoding: 'utf-8'}));
+    if (fs.existsSync(`${fullCachePath}_timings.json`)) {
+      instantiatedParams.timings = JSON.parse(fs.readFileSync(`${fullCachePath}_timings.json`, {encoding: 'utf-8'}));
+    }
+
     if (io.rabbit) {
       io.rabbit.publishTopic('speaker.speak.end', instantiatedParams);
     }
+
+    reply({
+      status: 'success',
+      data: instantiatedParams,
+    });
+
+    /*
     if (exitCode === 0) {
       reply({
         status: 'success',
@@ -202,6 +212,7 @@ function synthesizeSpeech(params: SpeechParams, reply: (message: {status: string
         data: instantiatedParams
       });
     }
+    */
   });
 }
 
