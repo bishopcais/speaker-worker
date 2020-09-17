@@ -72,7 +72,7 @@ else {
       resolve();
     });
   }));
-  voiceStream.pipe(fs.createWriteStream(fullCachePath));
+  voiceStream.pipe(writeStream);
   voiceStream.on('words', (_, json) => {
     timings.push(...json.words);
   });
