@@ -19,6 +19,15 @@ cp cog-sample.json cog.json
 
 After that, edit `cog.json` to have the credentials you need for RabbitMQ, etc.
 
+Note, there is an [open bug](https://github.com/TooTallNate/node-speaker/issues/95) with the speaker module
+used by the speaker-worker on macOS that causes an "Illegal Hardware Instruction" error. While this does not
+seem to cause any issue in actually playing the synthesized output, and this module attempts to properly handle
+this issue internally, the error can be avoided by doing:
+
+```bash
+npm install --mpg123-backend=openal
+```
+
 ## Usage
 
 ```bash

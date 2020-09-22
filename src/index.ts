@@ -170,8 +170,11 @@ function synthesizeSpeech(params: SpeechParams, reply: (message: {status: string
 
   streamProc = spawn('node', [path.resolve(__dirname, '..', 'dist', 'stream.js'), JSON.stringify(instantiatedParams)], {stdio: 'inherit'});
   streamProc.unref();
-  streamProc.on('exit', (exitCode) => {
-    console.log(`exitCode: ${exitCode}`);
+  streamProc.on('exit', (exitCode, signal) => {
+    if (exitCode === null && signal === 'SIGILL' && process.platform === 'darwin') {
+      exitCode = 0;
+    }
+    // console.log(`exitCode: ${exitCode}`);
     console.timeEnd(`${instantiatedParams.cachePath}_cmd`);
     if (fs.existsSync(`${fullCachePath}_timings.json`)) {
       instantiatedParams.timings = JSON.parse(fs.readFileSync(`${fullCachePath}_timings.json`, {encoding: 'utf-8'}));
@@ -181,12 +184,6 @@ function synthesizeSpeech(params: SpeechParams, reply: (message: {status: string
       io.rabbit.publishTopic('speaker.speak.end', instantiatedParams);
     }
 
-    reply({
-      status: 'success',
-      data: instantiatedParams,
-    });
-
-    /*
     if (exitCode === 0) {
       reply({
         status: 'success',
@@ -212,7 +209,6 @@ function synthesizeSpeech(params: SpeechParams, reply: (message: {status: string
         data: instantiatedParams
       });
     }
-    */
   });
 }
 
