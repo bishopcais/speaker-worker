@@ -150,10 +150,6 @@ Accepts the following payload:
 }
 ```
 
-### rpc-speaker-playBuffer
-
-Given a Buffer object, will output it via `ffmpeg`, giving a reply after `ffmpeg` has finished playing.
-
 ### rpc-speaker-stop
 
 Use this to have the `speaker-worker` stop talking, killing any existing `ffmpeg` process.

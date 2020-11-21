@@ -290,6 +290,53 @@ if (io.rabbit) {
       status: 'success'
     });
   });
+
+  io.rabbit.onRpc('rpc-speaker-getSynthesizedSpeech', (message, reply) => {
+    const instantiatedParams = getParameters((message.content as SpeechParams));
+
+    if (!instantiatedParams.text) {
+      return reply({
+        status: 'error',
+        message: 'text parameter is missing'
+      });
+    }
+
+    logger.info(`Synthesizing: ${instantiatedParams.text}`);
+    const fullCachePath = join(cachePath, instantiatedParams.cachePath);
+    const promises = [Promise.resolve()];
+    if (!fs.existsSync(fullCachePath)) {
+      const wsParams = {
+        accept: 'audio/wav',
+        text: instantiatedParams.text,
+        voice: instantiatedParams.language + '_' + instantiatedParams.voice,
+        xWatsonLearningOptOut: true,
+        timings: ['words']
+      };
+      const timings: [string, number, number][] = [];
+      const voiceStream = tts.synthesizeUsingWebSocket(wsParams);
+      promises.push(new Promise((resolve) => {
+        voiceStream.on('end', () => {
+          fs.writeFileSync(`${fullCachePath}_timings.json`, JSON.stringify(timings));
+          resolve();
+        });
+      }));
+
+      const writeStream = fs.createWriteStream(fullCachePath);
+      promises.push(new Promise((resolve) => {
+        writeStream.on('close', () => {
+          console.log(`finished writing cache file: ${fullCachePath}`);
+          resolve();
+        });
+      }));
+      voiceStream.pipe(writeStream);
+      voiceStream.on('words', (_, json) => {
+        timings.push(...json.words);
+      });
+    }
+    Promise.all(promises).then(() => {
+      reply(fs.readFileSync(fullCachePath));
+    });
+  });
 }
 
 // load static sources
