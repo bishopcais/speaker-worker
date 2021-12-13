@@ -36,6 +36,7 @@ interface SpeakerWorkerConfig {
   language: string;
   voices: {[language: string]: string};
   volume: number;
+  environment?: string;
 }
 
 const app = express();
@@ -278,11 +279,11 @@ if (io.rabbit) {
     logger.info(`Set volume to ${config.volume}`);
   });
 
-  io.rabbit.onRpc('rpc-speaker-speakText', (request, reply) => {
+  io.rabbit.onRpc(`rpc-speaker-${config.environment ? `${config.environment}-` : ''}speakText`, (request, reply) => {
     synthesizeSpeech(request.content as SpeechParams, reply);
   });
 
-  io.rabbit.onRpc('rpc-speaker-stop', (_, reply) => {
+  io.rabbit.onRpc(`rpc-speaker-${config.environment ? `${config.environment}-` : ''}stop`, (_, reply) => {
     if (streamProc) {
       streamProc.kill();
     }
@@ -291,7 +292,7 @@ if (io.rabbit) {
     });
   });
 
-  io.rabbit.onRpc('rpc-speaker-getSynthesizedSpeech', (message, reply) => {
+  io.rabbit.onRpc(`rpc-speaker-${config.environment ? `${config.environment}-` : ''}getSynthesizedSpeech`, (message, reply) => {
     const instantiatedParams = getParameters((message.content as SpeechParams));
 
     if (!instantiatedParams.text) {
