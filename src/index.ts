@@ -232,6 +232,15 @@ function exceptionHandler(err: Error): void {
   process.exit(127);
 }
 
+function buildRpcQueueName(method: string): string {
+  const parts = ['rpc', 'speaker'];
+  if (config.environment) {
+    parts.push(config.environment);
+  }
+  parts.push(method);
+  return parts.join('-');
+}
+
 if (io.rabbit) {
   io.rabbit.onTopic('speaker.command.cache.clear', () => {
     clearCache();
@@ -279,11 +288,11 @@ if (io.rabbit) {
     logger.info(`Set volume to ${config.volume}`);
   });
 
-  io.rabbit.onRpc(`rpc-speaker-${config.environment ? `${config.environment}-` : ''}speakText`, (request, reply) => {
+  io.rabbit.onRpc(buildRpcQueueName('speakText'), (request, reply) => {
     synthesizeSpeech(request.content as SpeechParams, reply);
   });
 
-  io.rabbit.onRpc(`rpc-speaker-${config.environment ? `${config.environment}-` : ''}stop`, (_, reply) => {
+  io.rabbit.onRpc(buildRpcQueueName('stop'), (_, reply) => {
     if (streamProc) {
       streamProc.kill();
     }
@@ -292,7 +301,7 @@ if (io.rabbit) {
     });
   });
 
-  io.rabbit.onRpc(`rpc-speaker-${config.environment ? `${config.environment}-` : ''}getSynthesizedSpeech`, (message, reply) => {
+  io.rabbit.onRpc(buildRpcQueueName('getSynthesizedSpeech'), (message, reply) => {
     const instantiatedParams = getParameters((message.content as SpeechParams));
 
     if (!instantiatedParams.text) {
