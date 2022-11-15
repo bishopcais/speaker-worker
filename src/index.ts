@@ -90,6 +90,13 @@ async function initialize(): Promise<void> {
   }
 }
 
+function validateEnvironment(environment: string | null | undefined): boolean {
+  if (!environment && !config.environment) {
+    return true;
+  }
+  return environment === config.environment;
+}
+
 function getParameters(params: SpeechParams): InstantiatedSpeechParams {
   if (params.lang) {
     params.language = params.lang;
@@ -242,12 +249,19 @@ function buildRpcQueueName(method: string): string {
 }
 
 if (io.rabbit) {
-  io.rabbit.onTopic('speaker.command.cache.clear', () => {
+  io.rabbit.onTopic('speaker.command.cache.clear', (response) => {
+    const msg = (response.content as { environment?: string });
+    if (!validateEnvironment(msg.environment)) {
+      return;
+    }
     clearCache();
   });
 
   io.rabbit.onTopic('speaker.command.default.language', (response) => {
-    const msg = (response.content as {language: string});
+    const msg = (response.content as { environment?: string; language: string });
+    if (!validateEnvironment(msg.environment)) {
+      return;
+    }
     if (languages[msg.language]) {
       config.language = msg.language;
       logger.info(`Default language set to ${config.language}`);
@@ -258,7 +272,10 @@ if (io.rabbit) {
   });
 
   io.rabbit.onTopic('speaker.command.default.voice', (response) => {
-    const msg = (response.content as {language: string; voice: string});
+    const msg = (response.content as { environment?: string; language: string; voice: string });
+    if (!validateEnvironment(msg.environment)) {
+      return;
+    }
     if (languages[msg.language]) {
       if (languages[msg.language].includes(msg.voice)) {
         config.voices[msg.language] = msg.voice;
@@ -274,7 +291,10 @@ if (io.rabbit) {
   });
 
   io.rabbit.onTopic('speaker.command.volume.change', (response) => {
-    const msg = (response.content as {change?: number; volume?: number});
+    const msg = (response.content as { environment?: string; change?: number; volume?: number });
+    if (!validateEnvironment(msg.environment)) {
+      return;
+    }
     if (msg.change) {
       config.volume = config.volume + msg.change / 100;
     }
